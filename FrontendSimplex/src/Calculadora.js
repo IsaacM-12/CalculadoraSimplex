@@ -3,17 +3,19 @@ import axios from "axios";
 
 const Calculadora = () => {
   const [showVarDesicion, setshowVarDesicion] = useState([]);
-  const [showRestricciones, setshowRestricciones] = useState(["22"]);
+  const [showRestricciones, setshowRestricciones] = useState([]);
 
   // Definición de estados iniciales usando useState
-  const [numVariables, setNumVariables] = useState([]); // Número de variables de decisión
-  const [numRestricciones, setNumRestricciones] = useState([]); // Número de restricciones
+  const [numVariables, setNumVariables] = useState(2); // Número de variables de decisión
+  const [numRestricciones, setNumRestricciones] = useState(2); // Número de restricciones
 
   const [variablesDeDecision, setVariablesDeDecision] = useState([]); // Arreglo para almacenar las entradas de variables de decisión
   const [restricciones, setRestricciones] = useState([]); // Arreglo para almacenar las entradas de restricciones
 
   const [variablesDesGuardar, setVariablesDesGuardar] = useState([]); // Arreglo para guardar las variables de decisión ingresadas
   const [Restricciones, setRestriccionesGuardar] = useState([]); // Arreglo para guardar las restricciones ingresadas
+
+  const [numeroVarDes, setNumeroVarDes] = useState(2);
 
   // Función para manejar el cambio en el número de variables de decisión
   const handleNumVariablesChange = (e) => {
@@ -36,6 +38,8 @@ const Calculadora = () => {
     const variablesDesGuardarArray = [];
     const restriccionesArray = [];
 
+    setNumeroVarDes(numVars);
+
     // Generar entradas para variables de decisión
     for (let i = 1; i <= numVars; i++) {
       const variableName = `Variable X${i}`;
@@ -43,8 +47,8 @@ const Calculadora = () => {
         <div key={`var_${i}`}>
           {variableName}:
           <input
-            className="form-control"
-            type="text"
+            className="VarDesInput"
+            type="number"
             onChange={(e) => {
               variablesDesGuardarArray[i - 1] = e.target.value;
               setVariablesDesGuardar([...variablesDesGuardarArray]);
@@ -60,8 +64,8 @@ const Calculadora = () => {
         <div key={`restr_${i}`}>
           Restricción {i}:
           <input
-            className="form-control"
-            type="text"
+            className="VarResInput"
+            type="number"
             onChange={(e) => {
               restriccionesArray[i - 1] = e.target.value;
               setRestriccionesGuardar([...restriccionesArray]);
@@ -84,7 +88,7 @@ const Calculadora = () => {
       variables: variablesDesGuardar,
     };
 
-    if (newVariable.length >= 0) {
+    if (newVariable.variables.length !== numeroVarDes) {
       alert("Debe digitar todos los datos.");
     } else {
       const serviceUrl = `http://localhost:8000/VarDesicion`;
@@ -196,40 +200,33 @@ const Calculadora = () => {
 
   // Renderizar la interfaz de usuario
   return (
-      <div className="container">
-        <h2>Selecciona el número de variables de decisión y restricciones:</h2>
-        <div className="form-group">
-          <label>Número de Variables de Decisión:</label>
-          <input
-            className="form-control"
-            type="number"
-            min="1"
-            value={numVariables}
-            onChange={handleNumVariablesChange}
-          />
-        </div>
-        <div className="form-group">
-          <label>Número de Restricciones:</label>
-          <input
-            className="form-control"
-            type="number"
-            min="1"
-            value={numRestricciones}
-            onChange={handleNumRestriccionesChange}
-          />
-        </div>
-        <div>
-          <h2>Entradas para Variables de Decisión:</h2>
-          {variablesDeDecision}
-        </div>
-        <div>
-          <h2>Entradas para Restricciones:</h2>
-          {restricciones}
-        </div>
-        <div>
-          <h2>Variables de Decisión Guardadas:</h2>
-          <p>{variablesDesGuardar.join(", ")}</p>
-        </div>
+    <div className="container">
+      <h2>Selecciona el número de variables de decisión y restricciones:</h2>
+      <div className="form-group">
+        <label>Número de Variables de Decisión:</label>
+        <input
+          className="form-control mb-6"
+          type="number"
+          min="1"
+          value={numVariables}
+          onChange={handleNumVariablesChange}
+        />
+      </div>
+      <div className="form-group">
+        <label>Número de Restricciones:</label>
+        <input
+          className="form-control"
+          type="number"
+          min="1"
+          value={numRestricciones}
+          onChange={handleNumRestriccionesChange}
+        />
+      </div>
+      <div>
+        <h2>Entradas para Variables de Decisión:</h2>
+        {variablesDeDecision}
+      </div>
+      <div className="space">
         <button
           className="btn btn-info"
           type="button"
@@ -237,26 +234,25 @@ const Calculadora = () => {
         >
           Crear Variable
         </button>
-        <div>
-          <h2>Restricciones Guardadas:</h2>
-          {Restricciones.map((restriccion, index) => (
-            <p key={`restriccion_${index}`}>
-              Restricción {index + 1}: {restriccion}
-            </p>
-          ))}
-        </div>
+      </div>
+      <div>
+        <h2>Entradas para Restricciones:</h2>
+        {restricciones}
+      </div>
+      <div className="space">
         <button
           className="btn btn-primary"
           type="button"
           onClick={createRestricciones}
         >
           Crear Restricciones
-        </button>{" "}
-        <h1>Variables Decision</h1>
-        {showVarDesicion}
-        <h1>Variables restricción</h1>
-        {showRestricciones}
+        </button>
       </div>
+      <h1>Variables Decision</h1>
+      {showVarDesicion}
+      <h1>Variables restricción</h1>
+      {showRestricciones}
+    </div>
   );
 };
 export default Calculadora;

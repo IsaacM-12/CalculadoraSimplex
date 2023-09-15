@@ -4,3 +4,17 @@
   min-height: 100vh;
   color: aliceblue;
 }
+
+.VarDesInput{
+  max-width: 200px;
+  margin-left: 10px;
+}
+
+.VarResInput{
+  max-width: 200px;
+  margin-left: 10px;
+}
+
+.space{
+  margin: 10px;
+}
