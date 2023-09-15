@@ -36,6 +36,7 @@ python -m venv proyectoio
 Además puedes usar estos 2 comandos para instalar nuevamente lo que necesario para que funcione el backend
 
 ```
+proyectoio\Scripts\activate
 pip install fastapi
 pip install uvicorn
 ```
