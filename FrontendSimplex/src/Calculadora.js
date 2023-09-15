@@ -91,7 +91,7 @@ const Calculadora = () => {
     if (newVariable.variables.length !== numeroVarDes) {
       alert("Debe digitar todos los datos.");
     } else {
-      const serviceUrl = `http://localhost:8000/VarDesicion`;
+      const serviceUrl = `http://localhost:8000/VarDecision`;
       let config = {
         headers: {
           "Content-Type": "application/json",
@@ -137,12 +137,15 @@ const Calculadora = () => {
   // seleciona las variables De Desicion (API)
   // -------------------------------------------------------------
   const selectVariablesDecision = async () => {
-    const serviceUrl = "http://localhost:8000/VarDesicion";
+    const serviceUrl = "http://localhost:8000/VarDecision";
     try {
       const response = await axios.get(serviceUrl);
-      const varDecisionData = response.data;
+
+      // Convierte el arreglo en una cadena separada por comas y luego imprímelo
+      const variablesString = " [ " + response.data.variables.join(", ") + " ]";
+
       // Actualiza el estado con los datos de VarDesicion
-      setshowVarDesicion(varDecisionData.variables);
+      setshowVarDesicion(variablesString);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

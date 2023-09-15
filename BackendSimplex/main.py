@@ -20,8 +20,8 @@ app.add_middleware(
 # ------------------------------------------------------------------------
 # Modelos
 # ------------------------------------------------------------------------
-class VarDesicion(BaseModel):
-    variables: list[str]
+class VarDecision(BaseModel):
+    variables: list[float]
 
 class Restricciones(BaseModel):
     restricciones: list[str]
@@ -29,20 +29,24 @@ class Restricciones(BaseModel):
 # ------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------
-variableDesicion = VarDesicion(variables=["0", "0", "0"])
+variableDesicion = VarDecision(variables=[0, 0, 0])
 varRestricciones = Restricciones(restricciones=["0 cero", "1"])
 
 # ------------------------------------------------------------------------
 # Rutas
 # ------------------------------------------------------------------------
-@app.get("/VarDesicion")
+@app.get("/VarDecision")
 async def GetVarDesicion(request: Request):
     return variableDesicion
 
-@app.post("/VarDesicion")
-async def UpdateVarDesicion(varDesicion: VarDesicion):
+@app.post("/VarDecision")
+async def UpdateVarDesicion(varDecision: VarDecision):
     global variableDesicion  # Utiliza la declaración global
-    variableDesicion = varDesicion
+    
+    # Hace la suma de la lista que recibe y la guarda al final de una nueva lista
+    nueva_lista = AppendSumaAlFinal(varDecision.variables)
+    varDecision.variables = nueva_lista
+    variableDesicion = varDecision
     
     return {"message": "El exitoooo"}
 
@@ -55,6 +59,16 @@ async def GetRestricciones(request: Request):
 @app.post("/Restricciones")
 async def UpdateRestricciones(restricciones: Restricciones):
     global varRestricciones  # Utiliza la declaración global
-    varRestricciones = restricciones
-    
+    varRestricciones = restricciones    
     return {"message": "El exitoooo"}
+
+
+# ------------------------------------------------------------------------
+# Metodos
+# ------------------------------------------------------------------------
+
+def AppendSumaAlFinal(l):
+    suma = sum(l)  # Usa la función sum para obtener la suma de todos los elementos
+    l.append(suma)  # Agrega la suma a la lista
+
+    return l
