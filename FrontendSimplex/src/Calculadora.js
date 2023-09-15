@@ -201,11 +201,12 @@ const Calculadora = () => {
   // Renderizar la interfaz de usuario
   return (
     <div className="container">
-      <h2>Selecciona el número de variables de decisión y restricciones:</h2>
+      <h3>Selecciona el número de variables de decisión y restricciones:</h3>
       <div className="form-group">
         <label>Número de Variables de Decisión:</label>
+        <br></br>
         <input
-          className="form-control mb-6"
+          className="inputSelect"
           type="number"
           min="1"
           value={numVariables}
@@ -214,8 +215,9 @@ const Calculadora = () => {
       </div>
       <div className="form-group">
         <label>Número de Restricciones:</label>
+        <br></br>
         <input
-          className="form-control"
+          className="inputSelect"
           type="number"
           min="1"
           value={numRestricciones}
@@ -223,7 +225,7 @@ const Calculadora = () => {
         />
       </div>
       <div>
-        <h2>Entradas para Variables de Decisión:</h2>
+        <h3>Entradas para Variables de Decisión:</h3>
         {variablesDeDecision}
       </div>
       <div className="space">
@@ -236,7 +238,7 @@ const Calculadora = () => {
         </button>
       </div>
       <div>
-        <h2>Entradas para Restricciones:</h2>
+        <h3>Entradas para Restricciones:</h3>
         {restricciones}
       </div>
       <div className="space">
@@ -248,9 +250,9 @@ const Calculadora = () => {
           Crear Restricciones
         </button>
       </div>
-      <h1>Variables Decision</h1>
+      <h3>Variables Decision</h3>
       {showVarDesicion}
-      <h1>Variables restricción</h1>
+      <h3>Variables restricción</h3>
       {showRestricciones}
     </div>
   );

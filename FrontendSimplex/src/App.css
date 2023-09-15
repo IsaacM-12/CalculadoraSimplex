@@ -1,18 +1,37 @@
 .App {
   text-align: center;
-  background-color: rgb(109, 108, 108);
+  background-color: rgb(62, 57, 57);
   min-height: 100vh;
   color: aliceblue;
+  padding: 20px;
 }
+
 
 .VarDesInput{
   max-width: 200px;
-  margin-left: 10px;
+  margin: 10px;
+  background-color: transparent;
+  color: aliceblue;
+  border-color: rgb(33, 205, 205);
+  padding: 5px;
 }
 
 .VarResInput{
   max-width: 200px;
-  margin-left: 10px;
+  margin: 10px;
+  background-color: transparent;
+  color: aliceblue;
+  border-color: rgb(33, 205, 205);
+  padding: 5px;
+}
+
+.inputSelect{
+  margin: 10px;
+  max-width: 200px;
+  background-color: transparent;
+  color: aliceblue;
+  border-color: rgb(33, 205, 205);
+  padding: 5px;
 }
 
 .space{
