@@ -24,13 +24,28 @@ class VarDecision(BaseModel):
     variables: list[float]
 
 class Restricciones(BaseModel):
-    restricciones: list[str]
+    restricciones: list[list[float]]
+
+class Asignacion(BaseModel):
+    numVariables: int
+    numRestricciones: int
+
+class Simbolos(BaseModel):
+    simbols: list[str]
 
 # ------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------
 variableDesicion = VarDecision(variables=[0, 0, 0])
-varRestricciones = Restricciones(restricciones=["0 cero", "1"])
+varRestricciones = [
+    [1.0, 2.0, 3.0],  
+    [4.0, 5.0, 6.0],  
+    [7.0, 8.0, 9.0],  
+]
+varSimbolos = []
+
+cantRestricciones = 0
+cantVariables = 0
 
 # ------------------------------------------------------------------------
 # Rutas
@@ -42,11 +57,7 @@ async def GetVarDesicion(request: Request):
 @app.post("/VarDecision")
 async def UpdateVarDesicion(varDecision: VarDecision):
     global variableDesicion  # Utiliza la declaración global
-    
-    # Hace la suma de la lista que recibe y la guarda al final de una nueva lista
-    nueva_lista = AppendSumaAlFinal(varDecision.variables)
-    varDecision.variables = nueva_lista
-    variableDesicion = varDecision
+    variableDesicion = varDecision.variables
     
     return {"message": "El exitoooo"}
 
@@ -59,8 +70,37 @@ async def GetRestricciones(request: Request):
 @app.post("/Restricciones")
 async def UpdateRestricciones(restricciones: Restricciones):
     global varRestricciones  # Utiliza la declaración global
-    varRestricciones = restricciones    
+    varRestricciones = restricciones
+    
     return {"message": "El exitoooo"}
+
+
+@app.post("/asignacion")
+async def UpdateCantResDes(req: Asignacion):
+    global cantRestricciones
+    global cantVariables
+
+    cantVariables = req.numVariables
+    cantRestricciones = req.numRestricciones
+
+    return {"message": "El exitoooo"}
+
+
+
+@app.post("/listSimbolos")
+async def UpdateSimbolos(req: Simbolos):
+    global varSimbolos
+    varSimbolos = req.simbols
+    
+    
+    print(varSimbolos)
+    print("num Restricciones ",cantRestricciones)
+    print("num Variables ",cantVariables)
+    print("Restriccion ",varRestricciones)
+    print("Variables ", variableDesicion)
+
+    return {"message": "El exitoooo"}
+
 
 
 # ------------------------------------------------------------------------

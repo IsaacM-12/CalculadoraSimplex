@@ -14,7 +14,6 @@ const Calculadora = () => {
 
   const [variablesDesGuardar, setVariablesDesGuardar] = useState([]); // Arreglo para guardar las variables de decisión ingresadas
   const [Restricciones, setRestriccionesGuardar] = useState([]); // Arreglo para guardar las restricciones ingresadas
-  const [selectGuardar, setSelectGuardar] = useState([]); // Arreglo para guardar los select de las restricciones
 
   const [numeroVarDes, setNumeroVarDes] = useState(2);
 
@@ -38,7 +37,6 @@ const Calculadora = () => {
     const restriccionInputs = [];
     const variablesDesGuardarArray = [];
     const restriccionesArray = [];
-    const selectArray = [];
 
     setNumeroVarDes(numVars);
 
@@ -62,45 +60,17 @@ const Calculadora = () => {
 
     // Generar entradas para restricciones
     for (let i = 1; i <= numRest; i++) {
-      const restriccionRow = [];
-      for (let j = 1; j <= numVars + 1; j++) {
-        restriccionRow.push(
+      restriccionInputs.push(
+        <div key={`restr_${i}`}>
+          Restricción {i}:
           <input
-            key={`restr_${i}_var_${j}`}
             className="VarResInput"
             type="number"
             onChange={(e) => {
-              if (!restriccionesArray[i - 1]) {
-                restriccionesArray[i - 1] = [];
-              }
-              restriccionesArray[i - 1][j - 1] = e.target.value;
+              restriccionesArray[i - 1] = e.target.value;
               setRestriccionesGuardar([...restriccionesArray]);
             }}
           />
-        );
-
-        if (j === numVars) {
-          restriccionRow.push(
-            <select
-              onChange={(e) => {
-                if (!selectArray[i - 1]) {
-                  selectArray[i - 1] = [];
-                }
-                selectArray[i - 1] = e.target.value;
-                setSelectGuardar([...selectArray]);
-              }}
-            >
-              <option value="">Seleccionar una opción</option> 
-              <option value=">=">&#8805; (Mayor o igual que)</option>
-              <option value="<=">&#8804; (Menor o igual que)</option>
-              <option value="=">= (Igual a)</option>
-            </select>
-          );
-        }
-      }
-      restriccionInputs.push(
-        <div key={`restr_${i}`}>
-          Restricción {i}:{restriccionRow}
         </div>
       );
     }
@@ -108,7 +78,6 @@ const Calculadora = () => {
     // Actualizar los estados con las entradas generadas
     setVariablesDeDecision(variableInputs);
     setRestricciones(restriccionInputs);
-    setSelectGuardar(selectArray);
   };
 
   // -------------------------------------------------------------
@@ -225,53 +194,6 @@ const Calculadora = () => {
   };
 
   // -------------------------------------------------------------
-  // asigna las numVariables y numRestricciones (API)
-  // -------------------------------------------------------------
-  const asignarResVarDes = async () => {
-    var newVariable = {
-      numVariables: numVariables,
-      numRestricciones: numRestricciones,
-    };
-
-    const serviceUrl = `http://localhost:8000/asignacion `;
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
-  };
-
-  // -------------------------------------------------------------
-  // crea la lista de simbolos (API)
-  // -------------------------------------------------------------
-  const listaSimbolos = async () => {
-    var newVariable = {
-      simbols: selectGuardar,
-    };
-
-    const serviceUrl = `http://localhost:8000/listSimbolos `;
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
-  };
-
-  // -------------------------------------------------------------
-  // seleciona las Restricciones (API)
-  // -------------------------------------------------------------
-  const crearMatriz = async () => {
-    createRestricciones();
-    createVariableDecision();
-    asignarResVarDes();
-    listaSimbolos();
-  };
-
-  // -------------------------------------------------------------
   // llama selectVariables cada vez que carga la pantalla
   // -------------------------------------------------------------
   useEffect(() => {
@@ -309,13 +231,26 @@ const Calculadora = () => {
         <h3>Entradas para Variables de Decisión:</h3>
         {variablesDeDecision}
       </div>
+      <div className="space">
+        <button
+          className="btn btn-info"
+          type="button"
+          onClick={createVariableDecision}
+        >
+          Crear Variable
+        </button>
+      </div>
       <div>
         <h3>Entradas para Restricciones:</h3>
         {restricciones}
       </div>
       <div className="space">
-        <button className="btn btn-primary" type="button" onClick={crearMatriz}>
-          Crear
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={createRestricciones}
+        >
+          Crear Restricciones
         </button>
       </div>
       <h3>Variables Decision</h3>
