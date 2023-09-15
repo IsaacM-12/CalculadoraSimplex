@@ -1,11 +1,17 @@
 ### Isaac Melendez 
-### 1/9/2023
+**Fecha:** 13 de septiembre de 2023  
+**Autor:** Isaac Meléndez Gatgens
 ## React "^18.2.0", Boostrap
 
-### Primero en la ruta del backend y luego en la del frontend el comando:
+### Primero el comando:
 ```
 npm install
 ```
 
+### Para correr el proyecto
+```
+npm start
+```
 
-### http://localhost:3000/
+
+### corre en la ruta http://localhost:3000/
