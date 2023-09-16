@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import numpy as np
 
 # Configuración CORS para permitir solicitudes desde http://localhost:3000
 origins = ["http://localhost:3000"]
@@ -26,38 +27,34 @@ class VarDecision(BaseModel):
 class Restricciones(BaseModel):
     restricciones: list[list[float]]
 
-class Asignacion(BaseModel):
-    numVariables: int
-    numRestricciones: int
-
 class Simbolos(BaseModel):
     simbols: list[str]
 
 # ------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------
-variableDesicion = VarDecision(variables=[0, 0, 0])
-varRestricciones = [
-    [1.0, 2.0, 3.0],  
-    [4.0, 5.0, 6.0],  
-    [7.0, 8.0, 9.0],  
+variableDesicion = [
+    # 10, 10
+    ]
+variableRestricciones = [
+    # [1, 0, 2],
+    # [0, 1, 3],
+    # [-1, 1, 2] 
 ]
 varSimbolos = []
-
-cantRestricciones = 0
-cantVariables = 0
 
 # ------------------------------------------------------------------------
 # Rutas
 # ------------------------------------------------------------------------
 @app.get("/VarDecision")
 async def GetVarDesicion(request: Request):
+    global variableDesicion
     return variableDesicion
 
 @app.post("/VarDecision")
-async def UpdateVarDesicion(varDecision: VarDecision):
+async def UpdateVarDesicion(req: VarDecision):
     global variableDesicion  # Utiliza la declaración global
-    variableDesicion = varDecision.variables
+    variableDesicion = req.variables
     
     return {"message": "El exitoooo"}
 
@@ -65,23 +62,20 @@ async def UpdateVarDesicion(varDecision: VarDecision):
 
 @app.get("/Restricciones")
 async def GetRestricciones(request: Request):
-    return varRestricciones
+    global variableRestricciones
+    return variableRestricciones
 
 @app.post("/Restricciones")
-async def UpdateRestricciones(restricciones: Restricciones):
-    global varRestricciones  # Utiliza la declaración global
-    varRestricciones = restricciones
+async def UpdateRestricciones(req: Restricciones):
+    global variableRestricciones  # Utiliza la declaración global
+    variableRestricciones = req.restricciones
     
-    return {"message": "El exitoooo"}
+    print(varSimbolos)
+    print("Restriccion ",variableRestricciones)
+    print("Variables ", variableDesicion)
 
-
-@app.post("/asignacion")
-async def UpdateCantResDes(req: Asignacion):
-    global cantRestricciones
-    global cantVariables
-
-    cantVariables = req.numVariables
-    cantRestricciones = req.numRestricciones
+    matriz_simplex = crearMatriz(variableDesicion, variableRestricciones)
+    print(matriz_simplex)
 
     return {"message": "El exitoooo"}
 
@@ -91,14 +85,6 @@ async def UpdateCantResDes(req: Asignacion):
 async def UpdateSimbolos(req: Simbolos):
     global varSimbolos
     varSimbolos = req.simbols
-    
-    
-    print(varSimbolos)
-    print("num Restricciones ",cantRestricciones)
-    print("num Variables ",cantVariables)
-    print("Restriccion ",varRestricciones)
-    print("Variables ", variableDesicion)
-
     return {"message": "El exitoooo"}
 
 
@@ -107,8 +93,20 @@ async def UpdateSimbolos(req: Simbolos):
 # Metodos
 # ------------------------------------------------------------------------
 
-def AppendSumaAlFinal(l):
-    suma = sum(l)  # Usa la función sum para obtener la suma de todos los elementos
-    l.append(suma)  # Agrega la suma a la lista
+def crearMatriz(variableDecision, restricciones):
+    cantRestricciones = len(restricciones)
+    cantVariables = len(variableDecision)
 
-    return l
+    matriz = np.zeros((cantRestricciones + 1, cantVariables + cantRestricciones + 1))
+    
+    # Configurar la fila de la función objetivo
+    matriz[0, 0:cantVariables] = -np.array(variableDecision)
+    matriz[0, -1] = 0  # Z (valor inicial)
+
+    # Configurar las filas de las restricciones
+    for i in range(cantRestricciones):
+        matriz[i + 1, 0:cantVariables] = np.array(restricciones[i][0:cantVariables])
+        matriz[i + 1, cantVariables + i] = 1  # Variable de holgura
+        matriz[i + 1, -1] = restricciones[i][-1]
+
+    return matriz

@@ -6,8 +6,8 @@ const Calculadora = () => {
   const [showRestricciones, setshowRestricciones] = useState([]);
 
   // Definición de estados iniciales usando useState
-  const [numVariables, setNumVariables] = useState(2); // Número de variables de decisión
-  const [numRestricciones, setNumRestricciones] = useState(2); // Número de restricciones
+  const [numVariables, setNumVariables] = useState(); // Número de variables de decisión
+  const [numRestricciones, setNumRestricciones] = useState(); // Número de restricciones
 
   const [variablesDeDecision, setVariablesDeDecision] = useState([]); // Arreglo para almacenar las entradas de variables de decisión
   const [restricciones, setRestricciones] = useState([]); // Arreglo para almacenar las entradas de restricciones
@@ -16,12 +16,14 @@ const Calculadora = () => {
   const [Restricciones, setRestriccionesGuardar] = useState([]); // Arreglo para guardar las restricciones ingresadas
   const [selectGuardar, setSelectGuardar] = useState([]); // Arreglo para guardar los select de las restricciones
 
-  const [numeroVarDes, setNumeroVarDes] = useState(2);
+  const [numeroVarDesAPI, setNumeroVarDesAPI] = useState(-1); // vaiable que se envia al API para saber cuantas varibles de desicion tendra la matriz
+  const [numeroResAPI, setNumeroResAPI] = useState(-1); // vaiable que se envia al API para saber cuantas restricciones tendra la matriz
 
   // Función para manejar el cambio en el número de variables de decisión
   const handleNumVariablesChange = (e) => {
     const value = parseInt(e.target.value);
     setNumVariables(value);
+    setNumeroVarDesAPI(value);
     generateVariableInputs(value, numRestricciones);
   };
 
@@ -29,21 +31,20 @@ const Calculadora = () => {
   const handleNumRestriccionesChange = (e) => {
     const value = parseInt(e.target.value);
     setNumRestricciones(value);
+    setNumeroResAPI(value);
     generateVariableInputs(numVariables, value);
   };
 
   // Función para generar dinámicamente las entradas de variables y restricciones
-  const generateVariableInputs = (numVars, numRest) => {
+  const generateVariableInputs = (numVarsEntrada, numRestEntrada) => {
     const variableInputs = [];
     const restriccionInputs = [];
     const variablesDesGuardarArray = [];
     const restriccionesArray = [];
     const selectArray = [];
 
-    setNumeroVarDes(numVars);
-
     // Generar entradas para variables de decisión
-    for (let i = 1; i <= numVars; i++) {
+    for (let i = 1; i <= numVarsEntrada; i++) {
       const variableName = `Variable X${i}`;
       variableInputs.push(
         <div key={`var_${i}`}>
@@ -51,6 +52,7 @@ const Calculadora = () => {
           <input
             className="VarDesInput"
             type="number"
+            required
             onChange={(e) => {
               variablesDesGuardarArray[i - 1] = e.target.value;
               setVariablesDesGuardar([...variablesDesGuardarArray]);
@@ -61,13 +63,14 @@ const Calculadora = () => {
     }
 
     // Generar entradas para restricciones
-    for (let i = 1; i <= numRest; i++) {
+    for (let i = 1; i <= numRestEntrada; i++) {
       const restriccionRow = [];
-      for (let j = 1; j <= numVars + 1; j++) {
+      for (let j = 1; j <= numVarsEntrada + 1; j++) {
         restriccionRow.push(
           <input
             key={`restr_${i}_var_${j}`}
             className="VarResInput"
+            required
             type="number"
             onChange={(e) => {
               if (!restriccionesArray[i - 1]) {
@@ -79,9 +82,10 @@ const Calculadora = () => {
           />
         );
 
-        if (j === numVars) {
+        if (j === numVarsEntrada) {
           restriccionRow.push(
             <select
+              required
               onChange={(e) => {
                 if (!selectArray[i - 1]) {
                   selectArray[i - 1] = [];
@@ -90,7 +94,7 @@ const Calculadora = () => {
                 setSelectGuardar([...selectArray]);
               }}
             >
-              <option value="">Seleccionar una opción</option> 
+              <option value="">Seleccionar una opción</option>
               <option value=">=">&#8805; (Mayor o igual que)</option>
               <option value="<=">&#8804; (Menor o igual que)</option>
               <option value="=">= (Igual a)</option>
@@ -119,8 +123,9 @@ const Calculadora = () => {
       variables: variablesDesGuardar,
     };
 
-    if (newVariable.variables.length !== numeroVarDes) {
-      alert("Debe digitar todos los datos.");
+    if (newVariable.variables.length !== numeroVarDesAPI) {
+      alert("Debe digitar todas las variables de decision.");
+      throw new Error("Falto ingresar variables")
     } else {
       const serviceUrl = `http://localhost:8000/VarDecision`;
       let config = {
@@ -129,40 +134,9 @@ const Calculadora = () => {
         },
       };
 
-      axios
-        .post(serviceUrl, newVariable, config) //then es usando promises, se puede asignar a una variable si quiere sin promises
-        .then((response) => {
-          alert("Agregado con exito");
-          selectVariablesDecision();
-        });
+      axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
     }
   };
-
-  // // -------------------------------------------------------------
-  // // borra una variables
-  // // -------------------------------------------------------------
-  // const deleteVariable = async () => {
-  //     const serviceUrl = `http://localhost:8000/calculadora`;
-  //     try {
-  //         // const response = await axios.delete(serviceUrl + inputVarDelete);
-  //         alert("Borrado con éxito");
-  //         selectVariables();
-  //     } catch (error) {
-  //         if (error.response) {
-  //             // La solicitud fue realizada pero el servidor respondió con un código de error
-  //             console.error("Error en la respuesta del servidor:", error.response.data);
-  //             alert("Error: No se pudo borrar la variable.");
-  //         } else if (error.request) {
-  //             // La solicitud se hizo pero no se recibió respuesta
-  //             console.error("No se recibió respuesta del servidor:", error.request);
-  //             alert("Error: No se pudo conectar al servidor.");
-  //         } else {
-  //             // Un error ocurrió durante la configuración de la solicitud
-  //             console.error("Error durante la configuración de la solicitud:", error.message);
-  //             alert("Error: Ocurrió un problema durante la solicitud.");
-  //         }
-  //     }
-  // }
 
   // -------------------------------------------------------------
   // seleciona las variables De Desicion (API)
@@ -171,9 +145,10 @@ const Calculadora = () => {
     const serviceUrl = "http://localhost:8000/VarDecision";
     try {
       const response = await axios.get(serviceUrl);
+      //console.log(response.data)
 
       // Convierte el arreglo en una cadena separada por comas y luego imprímelo
-      const variablesString = " [ " + response.data.variables.join(", ") + " ]";
+      const variablesString = " [ " + response.data.join(", ") + " ]";
 
       // Actualiza el estado con los datos de VarDesicion
       setshowVarDesicion(variablesString);
@@ -190,8 +165,9 @@ const Calculadora = () => {
       restricciones: Restricciones,
     };
 
-    if (newVariable.length >= 0) {
-      alert("Debe digitar todos los datos.");
+    if (newVariable.restricciones.length !== numeroResAPI) {
+      alert("Debe digitar todas las restricciones.");
+      throw new Error("Faltan Restricciones")
     } else {
       const serviceUrl = `http://localhost:8000/Restricciones `;
       let config = {
@@ -203,8 +179,9 @@ const Calculadora = () => {
       axios
         .post(serviceUrl, newVariable, config) //then es usando promises, se puede asignar a una variable si quiere sin promises
         .then((response) => {
-          alert("Agregado con exito");
+          alert("Creado con exito");
           selectRestricciones();
+          selectVariablesDecision();
         });
     }
   };
@@ -216,31 +193,14 @@ const Calculadora = () => {
     const serviceUrl = "http://localhost:8000/Restricciones";
     try {
       const response = await axios.get(serviceUrl);
-      const varRestricciones = response.data;
+      // Convierte el arreglo en una cadena separada por comas y luego imprímelo
+      const variablesString = " [ " + response.data.join(", ") + " ]";
+
       // Actualiza el estado con los datos de VarDesicion
-      setshowRestricciones(varRestricciones.restricciones);
+      setshowRestricciones(variablesString);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
-
-  // -------------------------------------------------------------
-  // asigna las numVariables y numRestricciones (API)
-  // -------------------------------------------------------------
-  const asignarResVarDes = async () => {
-    var newVariable = {
-      numVariables: numVariables,
-      numRestricciones: numRestricciones,
-    };
-
-    const serviceUrl = `http://localhost:8000/asignacion `;
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
   };
 
   // -------------------------------------------------------------
@@ -250,25 +210,28 @@ const Calculadora = () => {
     var newVariable = {
       simbols: selectGuardar,
     };
+    if (numeroResAPI !== newVariable.simbols.length) {
+      alert("Debe seleccionar el ingresar todas los simbolos <=, = o >=.");
+      throw new Error("No ingreso todos los simbolos")
+    } else {
+      const serviceUrl = `http://localhost:8000/listSimbolos `;
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
 
-    const serviceUrl = `http://localhost:8000/listSimbolos `;
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
+      axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
+    }
   };
 
   // -------------------------------------------------------------
   // seleciona las Restricciones (API)
   // -------------------------------------------------------------
   const crearMatriz = async () => {
-    createRestricciones();
-    createVariableDecision();
-    asignarResVarDes();
-    listaSimbolos();
+    await listaSimbolos();
+    await createVariableDecision();
+    await createRestricciones();
   };
 
   // -------------------------------------------------------------
