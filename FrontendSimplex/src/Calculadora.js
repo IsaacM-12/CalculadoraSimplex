@@ -6,8 +6,8 @@ const Calculadora = () => {
   const [showRestricciones, setshowRestricciones] = useState([]);
 
   // Definición de estados iniciales usando useState
-  const [numVariables, setNumVariables] = useState(); // Número de variables de decisión
-  const [numRestricciones, setNumRestricciones] = useState(); // Número de restricciones
+  const [numVariables, setNumVariables] = useState(2); // Número de variables de decisión
+  const [numRestricciones, setNumRestricciones] = useState(2); // Número de restricciones
 
   const [variablesDeDecision, setVariablesDeDecision] = useState([]); // Arreglo para almacenar las entradas de variables de decisión
   const [restricciones, setRestricciones] = useState([]); // Arreglo para almacenar las entradas de restricciones
@@ -15,25 +15,6 @@ const Calculadora = () => {
   const [variablesDesGuardar, setVariablesDesGuardar] = useState([]); // Arreglo para guardar las variables de decisión ingresadas
   const [Restricciones, setRestriccionesGuardar] = useState([]); // Arreglo para guardar las restricciones ingresadas
   const [selectGuardar, setSelectGuardar] = useState([]); // Arreglo para guardar los select de las restricciones
-
-  const [numeroVarDesAPI, setNumeroVarDesAPI] = useState(-1); // vaiable que se envia al API para saber cuantas varibles de desicion tendra la matriz
-  const [numeroResAPI, setNumeroResAPI] = useState(-1); // vaiable que se envia al API para saber cuantas restricciones tendra la matriz
-
-  // Función para manejar el cambio en el número de variables de decisión
-  const handleNumVariablesChange = (e) => {
-    const value = parseInt(e.target.value);
-    setNumVariables(value);
-    setNumeroVarDesAPI(value);
-    generateVariableInputs(value, numRestricciones);
-  };
-
-  // Función para manejar el cambio en el número de restricciones
-  const handleNumRestriccionesChange = (e) => {
-    const value = parseInt(e.target.value);
-    setNumRestricciones(value);
-    setNumeroResAPI(value);
-    generateVariableInputs(numVariables, value);
-  };
 
   // Función para generar dinámicamente las entradas de variables y restricciones
   const generateVariableInputs = (numVarsEntrada, numRestEntrada) => {
@@ -123,7 +104,7 @@ const Calculadora = () => {
       variables: variablesDesGuardar,
     };
 
-    if (newVariable.variables.length !== numeroVarDesAPI) {
+    if (newVariable.variables.length !== numVariables) {
       alert("Debe digitar todas las variables de decision.");
       throw new Error("Falto ingresar variables")
     } else {
@@ -165,7 +146,7 @@ const Calculadora = () => {
       restricciones: Restricciones,
     };
 
-    if (newVariable.restricciones.length !== numeroResAPI) {
+    if (newVariable.restricciones.length !== numRestricciones) {
       alert("Debe digitar todas las restricciones.");
       throw new Error("Faltan Restricciones")
     } else {
@@ -210,7 +191,7 @@ const Calculadora = () => {
     var newVariable = {
       simbols: selectGuardar,
     };
-    if (numeroResAPI !== newVariable.simbols.length) {
+    if (numRestricciones !== newVariable.simbols.length) {
       alert("Debe seleccionar el ingresar todas los simbolos <=, = o >=.");
       throw new Error("No ingreso todos los simbolos")
     } else {
@@ -238,6 +219,21 @@ const Calculadora = () => {
   // llama selectVariables cada vez que carga la pantalla
   // -------------------------------------------------------------
   useEffect(() => {
+    
+    // Obtenemos la cadena de consulta de la URL
+    const queryString = window.location.search;
+
+    // Creamos un objeto URLSearchParams para analizar la cadena de consulta
+    const params = new URLSearchParams(queryString);
+
+    // Obtenemos el valor de numVariables y numRestricciones
+    const numVariablesReq = parseInt(params.get('numVariables'), 10); // 10 es la base para parsear números
+    const numRestriccionesReq = parseInt(params.get('numRestricciones'), 10);
+
+    setNumVariables(numVariablesReq)
+    setNumRestricciones(numRestriccionesReq)
+
+    generateVariableInputs(numVariablesReq, numRestriccionesReq);
     selectVariablesDecision();
     selectRestricciones();
   }, []); // El segundo argumento vacío asegura que se llame solo una vez al cargar la página
@@ -245,29 +241,6 @@ const Calculadora = () => {
   // Renderizar la interfaz de usuario
   return (
     <div className="container">
-      <h3>Selecciona el número de variables de decisión y restricciones:</h3>
-      <div className="form-group">
-        <label>Número de Variables de Decisión:</label>
-        <br></br>
-        <input
-          className="inputSelect"
-          type="number"
-          min="1"
-          value={numVariables}
-          onChange={handleNumVariablesChange}
-        />
-      </div>
-      <div className="form-group">
-        <label>Número de Restricciones:</label>
-        <br></br>
-        <input
-          className="inputSelect"
-          type="number"
-          min="1"
-          value={numRestricciones}
-          onChange={handleNumRestriccionesChange}
-        />
-      </div>
       <div>
         <h3>Entradas para Variables de Decisión:</h3>
         {variablesDeDecision}

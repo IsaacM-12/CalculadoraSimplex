@@ -37,3 +37,20 @@
 .space{
   margin: 10px;
 }
+
+
+.button-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff; /* Color de fondo del botón */
+  color: #fff; /* Color del texto del botón */
+  text-decoration: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.button-link:hover {
+  background-color: #0056b3; /* Cambio de color al pasar el cursor */
+}
