@@ -33,6 +33,8 @@ class Simbolos(BaseModel):
 # ------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------
+matrizGlobal = []
+
 variableDesicion = [
     # 10, 10
     ]
@@ -46,10 +48,10 @@ varSimbolos = []
 # ------------------------------------------------------------------------
 # Rutas
 # ------------------------------------------------------------------------
-@app.get("/VarDecision")
-async def GetVarDesicion(request: Request):
-    global variableDesicion
-    return variableDesicion
+@app.get("/matriz")
+async def GetMatriz(request: Request):
+    global matrizGlobal
+    return matrizGlobal
 
 @app.post("/VarDecision")
 async def UpdateVarDesicion(req: VarDecision):
@@ -74,8 +76,10 @@ async def UpdateRestricciones(req: Restricciones):
     print("Restriccion ",variableRestricciones)
     print("Variables ", variableDesicion)
 
-    matriz_simplex = crearMatriz(variableDesicion, variableRestricciones)
-    print(matriz_simplex)
+    matrizTemp = crearMatrizSimplex(variableDesicion, variableRestricciones)
+    global matrizGlobal
+    matrizGlobal = matrizTemp.tolist()
+    print(matrizTemp)
 
     return {"message": "El exitoooo"}
 
@@ -93,7 +97,7 @@ async def UpdateSimbolos(req: Simbolos):
 # Metodos
 # ------------------------------------------------------------------------
 
-def crearMatriz(variableDecision, restricciones):
+def crearMatrizSimplex(variableDecision, restricciones):
     cantRestricciones = len(restricciones)
     cantVariables = len(variableDecision)
 

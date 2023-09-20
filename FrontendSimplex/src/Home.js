@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 const Home = () => {
   const [numVariables, setNumVariables] = useState(null); // Número de variables de decisión
@@ -26,8 +25,8 @@ const Home = () => {
       numRestricciones <= 0
     ) {
       // Muestra un mensaje de error o toma alguna otra acción apropiada
-      console.error(
-        "Error: numVariables y numRestricciones deben ser valores válidos y mayores a 0."
+      alert(
+        "Error: Número de Variables de Decisión o de Restricciones no validos."
       );
       return; // No redirigir si hay un error
     }

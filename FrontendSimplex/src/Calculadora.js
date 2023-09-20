@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import React from "react";
 
 const Calculadora = () => {
   const [showVarDesicion, setshowVarDesicion] = useState([]);
@@ -106,7 +107,7 @@ const Calculadora = () => {
 
     if (newVariable.variables.length !== numVariables) {
       alert("Debe digitar todas las variables de decision.");
-      throw new Error("Falto ingresar variables")
+      return;
     } else {
       const serviceUrl = `http://localhost:8000/VarDecision`;
       let config = {
@@ -120,19 +121,48 @@ const Calculadora = () => {
   };
 
   // -------------------------------------------------------------
-  // seleciona las variables De Desicion (API)
+  // recibe un Array y lo combierte en tabla
   // -------------------------------------------------------------
-  const selectVariablesDecision = async () => {
-    const serviceUrl = "http://localhost:8000/VarDecision";
+  function crearTablaDesdeArray(matriz) {
+    if (
+      !Array.isArray(matriz) ||
+      matriz.length === 0 ||
+      !Array.isArray(matriz[0]) ||
+      matriz[0].length === 0
+    ) {
+      return <p>La matriz proporcionada no es válida.</p>;
+    }
+  
+    const filas = matriz.map((fila, i) => (
+      <tr key={i}>
+        {fila.map((valor, j) => (
+          <td key={j}>{valor}</td>
+        ))}
+      </tr>
+    ));
+  
+    return (
+      <div class="container">
+        <table class="table table-striped table-dark">
+          <tbody>{filas}</tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // seleciona la matriz (API)
+  // -------------------------------------------------------------
+  const selectMatriz = async () => {
+    const serviceUrl = "http://localhost:8000/matriz";
     try {
       const response = await axios.get(serviceUrl);
-      //console.log(response.data)
 
-      // Convierte el arreglo en una cadena separada por comas y luego imprímelo
-      const variablesString = " [ " + response.data.join(", ") + " ]";
+      const variablesString = response.data;
+      const table = crearTablaDesdeArray(variablesString);
 
       // Actualiza el estado con los datos de VarDesicion
-      setshowVarDesicion(variablesString);
+      setshowVarDesicion(table);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -148,7 +178,7 @@ const Calculadora = () => {
 
     if (newVariable.restricciones.length !== numRestricciones) {
       alert("Debe digitar todas las restricciones.");
-      throw new Error("Faltan Restricciones")
+      return;
     } else {
       const serviceUrl = `http://localhost:8000/Restricciones `;
       let config = {
@@ -162,7 +192,7 @@ const Calculadora = () => {
         .then((response) => {
           alert("Creado con exito");
           selectRestricciones();
-          selectVariablesDecision();
+          selectMatriz();
         });
     }
   };
@@ -193,7 +223,7 @@ const Calculadora = () => {
     };
     if (numRestricciones !== newVariable.simbols.length) {
       alert("Debe seleccionar el ingresar todas los simbolos <=, = o >=.");
-      throw new Error("No ingreso todos los simbolos")
+      return;
     } else {
       const serviceUrl = `http://localhost:8000/listSimbolos `;
       let config = {
@@ -209,7 +239,7 @@ const Calculadora = () => {
   // -------------------------------------------------------------
   // seleciona las Restricciones (API)
   // -------------------------------------------------------------
-  const crearMatriz = async () => {
+  const crearMatrizAPI = async () => {
     await listaSimbolos();
     await createVariableDecision();
     await createRestricciones();
@@ -219,7 +249,6 @@ const Calculadora = () => {
   // llama selectVariables cada vez que carga la pantalla
   // -------------------------------------------------------------
   useEffect(() => {
-    
     // Obtenemos la cadena de consulta de la URL
     const queryString = window.location.search;
 
@@ -227,14 +256,14 @@ const Calculadora = () => {
     const params = new URLSearchParams(queryString);
 
     // Obtenemos el valor de numVariables y numRestricciones
-    const numVariablesReq = parseInt(params.get('numVariables'), 10); // 10 es la base para parsear números
-    const numRestriccionesReq = parseInt(params.get('numRestricciones'), 10);
+    const numVariablesReq = parseInt(params.get("numVariables"), 10); // 10 es la base para parsear números
+    const numRestriccionesReq = parseInt(params.get("numRestricciones"), 10);
 
-    setNumVariables(numVariablesReq)
-    setNumRestricciones(numRestriccionesReq)
+    setNumVariables(numVariablesReq);
+    setNumRestricciones(numRestriccionesReq);
 
     generateVariableInputs(numVariablesReq, numRestriccionesReq);
-    selectVariablesDecision();
+    selectMatriz();
     selectRestricciones();
   }, []); // El segundo argumento vacío asegura que se llame solo una vez al cargar la página
 
@@ -242,6 +271,9 @@ const Calculadora = () => {
   return (
     <div className="container">
       <div>
+        <div className="titulo">
+          <h1>Calculadora</h1>
+        </div>
         <h3>Entradas para Variables de Decisión:</h3>
         {variablesDeDecision}
       </div>
@@ -250,14 +282,19 @@ const Calculadora = () => {
         {restricciones}
       </div>
       <div className="space">
-        <button className="btn btn-primary" type="button" onClick={crearMatriz}>
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={crearMatrizAPI}
+        >
           Crear
         </button>
       </div>
-      <h3>Variables Decision</h3>
+      <h3>Matriz</h3>
       {showVarDesicion}
       <h3>Variables restricción</h3>
       {showRestricciones}
+
     </div>
   );
 };
