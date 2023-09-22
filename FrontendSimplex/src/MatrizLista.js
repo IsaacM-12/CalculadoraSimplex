@@ -7,14 +7,14 @@ const MatrizLista = () => {
   const [MatrizShow, setMatrizShow] = useState([]);
 
   // -------------------------------------------------------------
-  // cuando recarga la pagina llama funciones
+  // Se ejecuta cada vez que se recarga la pagina
   // -------------------------------------------------------------
   useEffect(() => {
     selectMatriz();
   }, []); // El segundo argumento vacío asegura que se llame solo una vez al cargar la página
 
   // -------------------------------------------------------------
-  // convierte la tabla a excel
+  // Convierte la tabla del HTML a excel
   // -------------------------------------------------------------
   const handleConvertToExcel = () => {
     // Obtener el elemento de la tabla por su ID
@@ -43,40 +43,38 @@ const MatrizLista = () => {
   };
 
   // -------------------------------------------------------------
-  // recibe un Array y lo combierte en tabla
+  // Recibe un array y devuelve una tabla de HTML
   // -------------------------------------------------------------
   function crearTablaDesdeArray(matriz) {
-    if (
-      !Array.isArray(matriz) ||
-      matriz.length === 0 ||
-      !Array.isArray(matriz[0]) ||
-      matriz[0].length === 0
-    ) {
-      return <p>Aqui aparecera la matriz.</p>;
+    if (!Array.isArray(matriz) || matriz.length === 0) {
+      return <p>Aquí aparecerá la matriz.</p>;
     }
 
-    const filas = matriz.map((fila, i) => (
-      <tr key={i}>
-        {fila.map((valor, j) => (
-          <td key={j}>{valor}</td>
-        ))}
-      </tr>
-    ));
-
-    return (
-      <div class="container">
-        <table class="table table-striped table-dark" id="table-to-xls">
-          <tbody>{filas}</tbody>
+    const tablas = matriz.map((tabla, tablaIndex) => (
+      <div key={tablaIndex}>
+        <h4>Iteracion {tablaIndex + 1}</h4>
+        <table className="table table-striped table-dark" id="table-to-xls">
+          <tbody>
+            {tabla.map((fila, filaIndex) => (
+              <tr key={filaIndex}>
+                {fila.map((valor, columnaIndex) => (
+                  <td key={columnaIndex}>{valor}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
-    );
+    ));
+
+    return <div className="container">{tablas}</div>;
   }
 
   // -------------------------------------------------------------
   // seleciona la matriz (API)
   // -------------------------------------------------------------
   const selectMatriz = async () => {
-    const serviceUrl = "http://localhost:8000/matriz";
+    const serviceUrl = "http://localhost:8000/matrizFinal";
     try {
       const response = await axios.get(serviceUrl);
 

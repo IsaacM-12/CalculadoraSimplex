@@ -3,21 +3,83 @@ import axios from "axios";
 import React from "react";
 
 const Calculadora = () => {
-  const [showVarDesicion, setshowVarDesicion] = useState([]);
-  const [showRestricciones, setshowRestricciones] = useState([]);
-
   // Definición de estados iniciales usando useState
-  const [numVariables, setNumVariables] = useState(2); // Número de variables de decisión
-  const [numRestricciones, setNumRestricciones] = useState(2); // Número de restricciones
+  const [showMatrizShow, setMatrizShow] = useState([]); // Guarda lo que se digite en la matriz Restricciones y Variables de decision
 
-  const [variablesDeDecision, setVariablesDeDecision] = useState([]); // Arreglo para almacenar las entradas de variables de decisión
-  const [restricciones, setRestricciones] = useState([]); // Arreglo para almacenar las entradas de restricciones
+  const [numVariables, setNumVariables] = useState(1); // Número de variables de decisión
+  const [numRestricciones, setNumRestricciones] = useState(1); // Número de restricciones
+
+  const [variablesDeDecisionInput, setVariablesDeDecisionInput] = useState([]); // Arreglo para almacenar las entradas de variables de decisión
+  const [restriccionesInput, setRestriccionesInput] = useState([]); // Arreglo para almacenar las entradas de restricciones
 
   const [variablesDesGuardar, setVariablesDesGuardar] = useState([]); // Arreglo para guardar las variables de decisión ingresadas
-  const [Restricciones, setRestriccionesGuardar] = useState([]); // Arreglo para guardar las restricciones ingresadas
-  const [selectGuardar, setSelectGuardar] = useState([]); // Arreglo para guardar los select de las restricciones
+  const [RestriccionesGuardar, setRestriccionesGuardar] = useState([]); // Arreglo para guardar las restricciones ingresadas
+  const [simbolosGuardar, setSimbolosGuardar] = useState([]); // Arreglo para guardar los select de las restricciones
 
+  // -------------------------------------------------------------
+  // Se ejecuta cada vez que se recarga la pagina
+  // -------------------------------------------------------------
+  useEffect(() => {
+    // Obtenemos la cadena de consulta de la URL
+    const queryString = window.location.search;
+    // Creamos un objeto URLSearchParams para analizar la cadena de consulta
+    const params = new URLSearchParams(queryString);
+    // Obtenemos el valor de numVariables y numRestricciones
+    const numVariablesReq = parseInt(params.get("numVariables"), 10); // 10 es la base para parsear números
+    const numRestriccionesReq = parseInt(params.get("numRestricciones"), 10);
+    //asigna a unas variables globales para poder usarlas de manera global
+    setNumVariables(numVariablesReq);
+    setNumRestricciones(numRestriccionesReq);
+
+    generateVariableInputs(numVariablesReq, numRestriccionesReq);
+    selectMatriz();
+  }, []); // El segundo argumento vacío asegura que se llame solo una vez al cargar la página
+
+  // -------------------------------------------------------------
+  // redirige a la ruta  /matrizLista
+  // -------------------------------------------------------------
+  const redirectToMatrizLista = () => {
+    const nuevaURL = `/matrizLista`;
+    window.location.href = nuevaURL;
+  };
+
+  // -------------------------------------------------------------
+  // recibe un Array y lo combierte en tabla
+  // -------------------------------------------------------------
+  function crearTablaDesdeArray(matriz) {
+    if (
+      !Array.isArray(matriz) ||
+      matriz.length === 0 ||
+      !Array.isArray(matriz[0]) ||
+      matriz[0].length === 0
+    ) {
+      return <p>Aqui aparecera la matriz.</p>;
+    }
+
+    const filas = matriz.map((fila, i) => (
+      <tr key={i}>
+        {fila.map((valor, j) => (
+          <td key={j}>{valor}</td>
+        ))}
+      </tr>
+    ));
+
+    return (
+      <div class="container">
+        <table class="table table-striped table-dark">
+          <tbody>{filas}</tbody>
+        </table>
+
+        <button className="btn btn-primary" onClick={redirectToMatrizLista}>
+          Continuar
+        </button>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
   // Función para generar dinámicamente las entradas de variables y restricciones
+  // -------------------------------------------------------------
   const generateVariableInputs = (numVarsEntrada, numRestEntrada) => {
     const variableInputs = [];
     const restriccionInputs = [];
@@ -73,7 +135,7 @@ const Calculadora = () => {
                   selectArray[i - 1] = [];
                 }
                 selectArray[i - 1] = e.target.value;
-                setSelectGuardar([...selectArray]);
+                setSimbolosGuardar([...selectArray]);
               }}
             >
               <option value="">Seleccionar una opción</option>
@@ -91,10 +153,39 @@ const Calculadora = () => {
       );
     }
 
-    // Actualizar los estados con las entradas generadas
-    setVariablesDeDecision(variableInputs);
-    setRestricciones(restriccionInputs);
-    setSelectGuardar(selectArray);
+    // Actualizar los estados con las entradas generadas para crear los input requeridos
+    setVariablesDeDecisionInput(variableInputs);
+    setRestriccionesInput(restriccionInputs);
+    setSimbolosGuardar(selectArray);
+  };
+
+  // -------------------------------------------------------------
+  // crea la lista de simbolos (API)
+  // -------------------------------------------------------------
+  const listaSimbolos = async () => {
+    var newVariable = {
+      simbols: simbolosGuardar,
+    };
+    if (numRestricciones !== newVariable.simbols.length) {
+      alert("Debe seleccionar todos los simbolos <=, = o >=.");
+      return;
+    } else {
+      const serviceUrl = `http://localhost:8000/listSimbolos `;
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      axios
+        .post(serviceUrl, newVariable, config)
+        .then((response) => {
+          createVariableDecision();
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud:", error);
+        });
+    }
   };
 
   // -------------------------------------------------------------
@@ -116,64 +207,14 @@ const Calculadora = () => {
         },
       };
 
-      axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
-    }
-  };
-
-  const redirectToMatrizLista = () => {
-    const nuevaURL = `/matrizLista`;
-    window.location.href = nuevaURL;
-  };
-
-  // -------------------------------------------------------------
-  // recibe un Array y lo combierte en tabla
-  // -------------------------------------------------------------
-  function crearTablaDesdeArray(matriz) {
-    if (
-      !Array.isArray(matriz) ||
-      matriz.length === 0 ||
-      !Array.isArray(matriz[0]) ||
-      matriz[0].length === 0
-    ) {
-      return <p>Aqui aparecera la matriz.</p>;
-    }
-  
-    const filas = matriz.map((fila, i) => (
-      <tr key={i}>
-        {fila.map((valor, j) => (
-          <td key={j}>{valor}</td>
-        ))}
-      </tr>
-    ));
-  
-    return (
-      <div class="container">
-        <table class="table table-striped table-dark">
-          <tbody>{filas}</tbody>
-        </table>
-
-        <button className="btn btn-primary" onClick={redirectToMatrizLista}>
-          Continuar
-        </button>
-      </div>
-    );
-  }
-
-  // -------------------------------------------------------------
-  // seleciona la matriz (API)
-  // -------------------------------------------------------------
-  const selectMatriz = async () => {
-    const serviceUrl = "http://localhost:8000/matriz";
-    try {
-      const response = await axios.get(serviceUrl);
-
-      const variablesString = response.data;
-      const table = crearTablaDesdeArray(variablesString);
-
-      // Actualiza el estado con los datos de VarDesicion
-      setshowVarDesicion(table);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      axios
+        .post(serviceUrl, newVariable, config)
+        .then((response) => {
+          createRestricciones();
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud:", error);
+        });
     }
   };
 
@@ -182,7 +223,7 @@ const Calculadora = () => {
   // -------------------------------------------------------------
   const createRestricciones = async () => {
     var newVariable = {
-      restricciones: Restricciones,
+      restricciones: RestriccionesGuardar,
     };
 
     if (newVariable.restricciones.length !== numRestricciones) {
@@ -197,84 +238,41 @@ const Calculadora = () => {
       };
 
       axios
-        .post(serviceUrl, newVariable, config) //then es usando promises, se puede asignar a una variable si quiere sin promises
+        .post(serviceUrl, newVariable, config)
         .then((response) => {
-          alert("Creado con exito");
-          selectRestricciones();
           selectMatriz();
+          alert("Matriz creada con exito");
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud:", error);
         });
     }
   };
 
   // -------------------------------------------------------------
-  // seleciona las Restricciones (API)
+  // seleciona la matriz del api (API)
   // -------------------------------------------------------------
-  const selectRestricciones = async () => {
-    const serviceUrl = "http://localhost:8000/Restricciones";
+  const selectMatriz = async () => {
+    const serviceUrl = "http://localhost:8000/matrizInicial";
     try {
       const response = await axios.get(serviceUrl);
-      // Convierte el arreglo en una cadena separada por comas y luego imprímelo
-      const variablesString = " [ " + response.data.join(", ") + " ]";
+
+      const variablesString = response.data;
+      const table = crearTablaDesdeArray(variablesString);
 
       // Actualiza el estado con los datos de VarDesicion
-      setshowRestricciones(variablesString);
+      setMatrizShow(table);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
   // -------------------------------------------------------------
-  // crea la lista de simbolos (API)
-  // -------------------------------------------------------------
-  const listaSimbolos = async () => {
-    var newVariable = {
-      simbols: selectGuardar,
-    };
-    if (numRestricciones !== newVariable.simbols.length) {
-      alert("Debe seleccionar el ingresar todas los simbolos <=, = o >=.");
-      return;
-    } else {
-      const serviceUrl = `http://localhost:8000/listSimbolos `;
-      let config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-
-      axios.post(serviceUrl, newVariable, config); //then es usando promises, se puede asignar a una variable si quiere sin promises
-    }
-  };
-
-  // -------------------------------------------------------------
-  // seleciona las Restricciones (API)
+  // Llama a los metodos necesarios para crear la matriz en el api (API)
   // -------------------------------------------------------------
   const crearMatrizAPI = async () => {
-    await listaSimbolos();
-    await createVariableDecision();
-    await createRestricciones();
+    listaSimbolos();
   };
-
-  // -------------------------------------------------------------
-  // llama selectVariables cada vez que carga la pantalla
-  // -------------------------------------------------------------
-  useEffect(() => {
-    // Obtenemos la cadena de consulta de la URL
-    const queryString = window.location.search;
-
-    // Creamos un objeto URLSearchParams para analizar la cadena de consulta
-    const params = new URLSearchParams(queryString);
-
-    // Obtenemos el valor de numVariables y numRestricciones
-    const numVariablesReq = parseInt(params.get("numVariables"), 10); // 10 es la base para parsear números
-    const numRestriccionesReq = parseInt(params.get("numRestricciones"), 10);
-
-    setNumVariables(numVariablesReq);
-    setNumRestricciones(numRestriccionesReq);
-
-    generateVariableInputs(numVariablesReq, numRestriccionesReq);
-    selectMatriz();
-    selectRestricciones();
-  }, []); // El segundo argumento vacío asegura que se llame solo una vez al cargar la página
 
   // Renderizar la interfaz de usuario
   return (
@@ -284,11 +282,11 @@ const Calculadora = () => {
           <h1>Calculadora</h1>
         </div>
         <h3>Entradas para Variables de Decisión:</h3>
-        {variablesDeDecision}
+        {variablesDeDecisionInput}
       </div>
       <div>
         <h3>Entradas para Restricciones:</h3>
-        {restricciones}
+        {restriccionesInput}
       </div>
       <div className="space">
         <button
@@ -296,14 +294,11 @@ const Calculadora = () => {
           type="button"
           onClick={crearMatrizAPI}
         >
-          Crear
+          Crear{" "}
         </button>
       </div>
       <h3>Matriz</h3>
-      {showVarDesicion}
-      <h3>Variables restricción</h3>
-      {showRestricciones}
-
+      {showMatrizShow}
     </div>
   );
 };
