@@ -120,6 +120,11 @@ const Calculadora = () => {
     }
   };
 
+  const redirectToMatrizLista = () => {
+    const nuevaURL = `/matrizLista`;
+    window.location.href = nuevaURL;
+  };
+
   // -------------------------------------------------------------
   // recibe un Array y lo combierte en tabla
   // -------------------------------------------------------------
@@ -130,7 +135,7 @@ const Calculadora = () => {
       !Array.isArray(matriz[0]) ||
       matriz[0].length === 0
     ) {
-      return <p>La matriz proporcionada no es válida.</p>;
+      return <p>Aqui aparecera la matriz.</p>;
     }
   
     const filas = matriz.map((fila, i) => (
@@ -146,6 +151,10 @@ const Calculadora = () => {
         <table class="table table-striped table-dark">
           <tbody>{filas}</tbody>
         </table>
+
+        <button className="btn btn-primary" onClick={redirectToMatrizLista}>
+          Continuar
+        </button>
       </div>
     );
   }
