@@ -32,7 +32,7 @@ const MatrizLista = () => {
     const tablas = matriz.map((tabla, tablaIndex) => (
       <div key={tablaIndex}>
         <h4>Iteracion {tablaIndex + 1}</h4>
-        <table className="table table-striped table-dark" id="table-to-xls">
+        <table className="table table-striped table-dark">
           <tbody>
             {tabla.map((fila, filaIndex) => (
               <tr key={filaIndex}>
