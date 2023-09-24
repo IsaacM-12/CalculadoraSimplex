@@ -21,69 +21,91 @@ app.add_middleware(
 # ------------------------------------------------------------------------
 # Modelos
 # ------------------------------------------------------------------------
+
+
 class VarDecision(BaseModel):
     variables: list[float]
+
 
 class Restricciones(BaseModel):
     restricciones: list[list[float]]
 
+
 class Simbolos(BaseModel):
     simbols: list[str]
+
+
+class ObjetivoFuncion(BaseModel):
+    objetivo: str
+
 
 # ------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------
+matrizSolucion = []
+
+
 matrizInicial = [
     # [1, 2, 3],
     # [3, 3, 3],
-    # [2, 2, 2] 
+    # [2, 2, 2]
 ]
 
 matrizConIteraciones = [
 
-#   [
-#     [-1.0, -2.0, 0.0, 0.0, 0.0],
-#     [1.0, 1.0, 1.0, 0.0, 1.0],
-#     [1.0, 1.0, 0.0, 1.0, 1.0],
-#   ],
-#   [
-#     [1.0, 0.0, 2.0, 0.0, 2.0],
-#     [1.0, 1.0, 1.0, 0.0, 1.0],
-#     [0.0, 0.0, -1.0, 1.0, 0.0],
-#   ],
-#   [
-#     [1.0, 0.0, 2.0, 0.0, 2.0],
-#     [1.0, 1.0, 1.0, 0.0, 1.0],
-#     [0.0, 0.0, -1.0, 1.0, 0.0],
-#   ]
+    #   [
+    #     [-1.0, -2.0, 0.0, 0.0, 0.0],
+    #     [1.0, 1.0, 1.0, 0.0, 1.0],
+    #     [1.0, 1.0, 0.0, 1.0, 1.0],
+    #   ],
+    #   [
+    #     [1.0, 0.0, 2.0, 0.0, 2.0],
+    #     [1.0, 1.0, 1.0, 0.0, 1.0],
+    #     [0.0, 0.0, -1.0, 1.0, 0.0],
+    #   ],
+    #   [
+    #     [1.0, 0.0, 2.0, 0.0, 2.0],
+    #     [1.0, 1.0, 1.0, 0.0, 1.0],
+    #     [0.0, 0.0, -1.0, 1.0, 0.0],
+    #   ]
 ]
 
 variableDesicion = [
     # 2 , 3
-    ]
+]
 variableRestricciones = [
     # [2, 1, 4],
     # [1, 2, 5]
 ]
 varSimbolos = []
 
+ObjetivoMaxMin = ""
+
 # ------------------------------------------------------------------------
 # Rutas
 # ------------------------------------------------------------------------
-# Manda la matrizInicial al front para imprimirla 
+
+# Manda la matrizInicial al front para imprimirla
+
+
 @app.get("/matrizInicial")
-async def GetMatriz(request: Request):
+async def GetMatrizInicial(request: Request):
     global matrizInicial
     return matrizInicial
 
 
-
-# Manda la matrizFinal al front para imprimirla 
-@app.get("/matrizFinal")
-async def GetMatriz(request: Request):
+# Manda la matrizConIteraciones al front para imprimirla
+@app.get("/matrizConIteraciones")
+async def GetMatrizConIteraciones(request: Request):
     global matrizConIteraciones
     return matrizConIteraciones
 
+
+# Manda la matrizSolucion al front para imprimirla
+@app.get("/matrizSolucion")
+async def GetMatrizSolucion(request: Request):
+    global matrizSolucion
+    return matrizSolucion
 
 
 # Recibe la lista de variables de decision del front
@@ -91,25 +113,14 @@ async def GetMatriz(request: Request):
 async def UpdateVarDesicion(req: VarDecision):
     global variableDesicion  # Utiliza la declaración global
     variableDesicion = req.variables
-    
     return {"message": "El exitoooo"}
 
-
-
-@app.get("/Restricciones")
-async def GetRestricciones(request: Request):
-    global variableRestricciones
-    return variableRestricciones
 
 # Recibe la lista de restricciones del front
 @app.post("/Restricciones")
 async def UpdateRestricciones(req: Restricciones):
     global variableRestricciones  # Utiliza la declaración global
     variableRestricciones = req.restricciones
-    
-    # print(varSimbolos)
-    # print("Restriccion ",variableRestricciones)
-    # print("Variables ", variableDesicion)
 
     iniciaSimplex()
 
@@ -123,57 +134,66 @@ async def UpdateSimbolos(req: Simbolos):
     varSimbolos = req.simbols
     return {"message": "El exitoooo"}
 
+# Recibe el Objetivo Max Min del front
+
+
+@app.post("/ObjetivoMaxMin")
+async def UpdateObjetivoMaxMin(req: ObjetivoFuncion):
+    global ObjetivoMaxMin  # Utiliza la declaración global
+    ObjetivoMaxMin = req.objetivo
+    return {"message": "El exitoooo"}
+
 
 # ------------------------------------------------------------------------
 # Metodos
 # ------------------------------------------------------------------------
 
-#Inicia el simplex Crea la matriz y hace las iteraciones 
+# Inicia el simplex Crea la matriz y hace las iteraciones
 def iniciaSimplex():
     matrizTemp = crearMatrizSimplex(variableDesicion, variableRestricciones)
-    
-    matrizTempInicial = matrizTemp.tolist()
 
+    # Pasa la matriz a lista para asiganrla a la inicial
+    matrizList = matrizTemp.tolist()
     # Crea un titulo para la matriz inicial
-    titulo = tituloMatriz(len(variableDesicion), len(variableRestricciones) )
-    matrizTempInicial.insert(0, titulo)
-
+    titulo = tituloMatriz(len(variableDesicion), len(variableRestricciones))
+    matrizList.insert(0, titulo)
     # Asigna la matriz con el titulo a la matriz inicial
     global matrizInicial
-    matrizInicial = matrizTempInicial
+    matrizInicial = matrizList
 
     # Hace el algoritmo del simplex con las iteraciones y la guarda en matrizConIteraciones
-    matrizSimplex = simplex_algorithm(matrizTemp)
-    global matrizConIteraciones
-    matrizConIteraciones = matrizSimplex
-    
+    # ademas guarda la solucion
+    simplex_algorithm(matrizTemp)
 
 
-
-# Recibe una lista con variable Decision y una matriz de restricciones 
+# Recibe una lista con variable Decision y una matriz de restricciones
 # Devuelve la matriz Simplex correspondiente
 def crearMatrizSimplex(variableDecision, restricciones):
     cantRestricciones = len(restricciones)
     cantVariables = len(variableDecision)
 
-    matriz = np.zeros((cantRestricciones + 1, cantVariables + cantRestricciones + 1))
-    
+    matriz = np.zeros(
+        (cantRestricciones + 1, cantVariables + cantRestricciones + 1))
+
     # Configurar la fila de la función objetivo
     matriz[0, 0:cantVariables] = -np.array(variableDecision)
     matriz[0, -1] = 0  # Z (valor inicial)
 
     # Configurar las filas de las restricciones
     for i in range(cantRestricciones):
-        matriz[i + 1, 0:cantVariables] = np.array(restricciones[i][0:cantVariables])
+        matriz[i + 1,
+               0:cantVariables] = np.array(restricciones[i][0:cantVariables])
         matriz[i + 1, cantVariables + i] = 1  # Variable de holgura
         matriz[i + 1, -1] = restricciones[i][-1]
-    
+
     return matriz
 
+
 # Recibe una matriz lista para comenzar a iterar con el metodo simplex
-# Devuelve la matriz con la solucion optima 
+# Devuelve la matriz con la solucion optima
 def simplex_algorithm(tabulacionSimplex):
-    tabulacionSimplex = tabulacionSimplex.astype(np.float64)  # Convertir la matriz a float64
+    tabulacionSimplex = tabulacionSimplex.astype(
+        np.float64)  # Convertir la matriz a float64
     iteration = 1
     MatrizConLasIteraciones = []
 
@@ -189,8 +209,10 @@ def simplex_algorithm(tabulacionSimplex):
             break
 
         # Encuentra la fila de salida (variable a salir) usando la regla del cociente mínimo
-        ratios = tabulacionSimplex[1:, -1] / tabulacionSimplex[1:, column_to_enter]
-        row_to_exit = np.argmin(ratios) + 1  # Se suma 1 para tener en cuenta la fila de costos
+        ratios = tabulacionSimplex[1:, -1] / \
+            tabulacionSimplex[1:, column_to_enter]
+        # Se suma 1 para tener en cuenta la fila de costos
+        row_to_exit = np.argmin(ratios) + 1
 
         # Realiza el pivoteo para llevar la variable de salida a la columna de entrada
         pivot_element = tabulacionSimplex[row_to_exit, column_to_enter]
@@ -200,14 +222,28 @@ def simplex_algorithm(tabulacionSimplex):
         for i in range(len(tabulacionSimplex)):
             if i != row_to_exit:
                 multiplier = -tabulacionSimplex[i, column_to_enter]
-                tabulacionSimplex[i, :] += multiplier * tabulacionSimplex[row_to_exit, :]
+                tabulacionSimplex[i, :] += multiplier * \
+                    tabulacionSimplex[row_to_exit, :]
 
         iteration += 1
 
-    return MatrizConLasIteraciones
+    # Guarda la matriz solucion
+    global matrizSolucion
+    matrizSolucion = tabulacionSimplex.tolist()
 
-#recibe un x que es la cantidad de variables s que es la cantidad de restricciones 
-# devuelve una lista con la cantidad de x y s indicadas y Un String Solucion al final
+    # Le agrega el titulo a la Solucion
+    titulo = tituloMatriz(len(variableDesicion), len(variableRestricciones))
+    matrizSolucion.insert(0, titulo)
+
+    # Guarda la matriz con las iteraciones
+    global matrizConIteraciones
+    matrizConIteraciones = MatrizConLasIteraciones
+
+    return
+
+
+# Recibe un x que es la cantidad de variables s que es la cantidad de restricciones
+# Devuelve una lista con la cantidad de x y s indicadas y Un String Solucion al final
 def tituloMatriz(x, s):
     lista_resultado = []
 
@@ -217,6 +253,6 @@ def tituloMatriz(x, s):
     for i in range(1, s + 1):
         lista_resultado.append(f'S{i}')
 
-    lista_resultado.append("Solucion")
+    lista_resultado.append("Solución")
 
     return lista_resultado

@@ -6,6 +6,16 @@
   padding: 20px;
 }
 
+select{
+  border: 2px solid rgb(33, 205, 205);
+  background-color: transparent;
+  color: #fff;
+  padding: 5px;
+}
+select:focus {
+  color: #000000;
+}
+
 
 .VarDesInput{
   max-width: 200px;

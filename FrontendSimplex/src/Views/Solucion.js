@@ -3,7 +3,7 @@ import axios from "axios";
 import React from "react";
 import * as XLSX from "xlsx";
 
-const MatrizLista = () => {
+const Solucion = () => {
   const [MatrizShow, setMatrizShow] = useState([]);
 
   // -------------------------------------------------------------
@@ -43,38 +43,40 @@ const MatrizLista = () => {
   };
 
   // -------------------------------------------------------------
-  // Recibe un array y devuelve una tabla de HTML
+  // recibe un Array y lo combierte en tabla HTML
   // -------------------------------------------------------------
   function crearTablaDesdeArray(matriz) {
-    if (!Array.isArray(matriz) || matriz.length === 0) {
-      return <p>Aquí aparecerá la matriz.</p>;
+    if (
+      !Array.isArray(matriz) ||
+      matriz.length === 0 ||
+      !Array.isArray(matriz[0]) ||
+      matriz[0].length === 0
+    ) {
+      return <p>Aqui aparecera la matriz.</p>;
     }
 
-    const tablas = matriz.map((tabla, tablaIndex) => (
-      <div key={tablaIndex}>
-        <h4>Iteracion {tablaIndex + 1}</h4>
-        <table className="table table-striped table-dark" id="table-to-xls">
-          <tbody>
-            {tabla.map((fila, filaIndex) => (
-              <tr key={filaIndex}>
-                {fila.map((valor, columnaIndex) => (
-                  <td key={columnaIndex}>{valor}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    const filas = matriz.map((fila, i) => (
+      <tr key={i}>
+        {fila.map((valor, j) => (
+          <td key={j}>{valor}</td>
+        ))}
+      </tr>
     ));
 
-    return <div className="container">{tablas}</div>;
+    return (
+      <div class="container">
+        <table class="table table-striped table-dark" id="table-to-xls">
+          <tbody>{filas}</tbody>
+        </table>
+      </div>
+    );
   }
 
   // -------------------------------------------------------------
   // seleciona la matriz (API)
   // -------------------------------------------------------------
   const selectMatriz = async () => {
-    const serviceUrl = "http://localhost:8000/matrizFinal";
+    const serviceUrl = "http://localhost:8000/matrizSolucion";
     try {
       const response = await axios.get(serviceUrl);
 
@@ -102,4 +104,4 @@ const MatrizLista = () => {
     </div>
   );
 };
-export default MatrizLista;
+export default Solucion;

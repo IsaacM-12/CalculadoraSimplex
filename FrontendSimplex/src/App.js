@@ -1,9 +1,10 @@
 import "./App.css";
-import Calculadora from "./Calculadora";
-import Home from "./Home";
+import Calculadora from "./Views/Calculadora";
+import Home from "./Views/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
-import MatrizLista from "./MatrizLista";
+import MatrizLista from "./Views/MatrizLista";
+import Solucion from "./Views/Solucion";
 
 function App() {
   function NotFound() {
@@ -14,13 +15,14 @@ function App() {
     );
   }
   return (
-    <div >
+    <div>
       <BrowserRouter>
         <Routes>
-        <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="/calcular" element={<Calculadora />} />
             <Route path="/matrizLista" element={<MatrizLista />} />
+            <Route path="/solucion" element={<Solucion />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

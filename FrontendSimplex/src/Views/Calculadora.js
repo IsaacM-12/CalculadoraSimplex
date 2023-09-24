@@ -15,6 +15,13 @@ const Calculadora = () => {
   const [variablesDesGuardar, setVariablesDesGuardar] = useState([]); // Arreglo para guardar las variables de decisión ingresadas
   const [RestriccionesGuardar, setRestriccionesGuardar] = useState([]); // Arreglo para guardar las restricciones ingresadas
   const [simbolosGuardar, setSimbolosGuardar] = useState([]); // Arreglo para guardar los select de las restricciones
+  const [objetivoMaxMinGuardar, setObjetivoMaxMinGuardar] = useState(null); // Arreglo para guardar el objetivo de la funcion
+
+  // Función para manejar el cambio en el select
+  const handleSelectObjetivoChange = (event) => {
+    const selectedOption = event.target.value;
+    setObjetivoMaxMinGuardar(selectedOption);
+  };
 
   // -------------------------------------------------------------
   // Se ejecuta cada vez que se recarga la pagina
@@ -162,7 +169,7 @@ const Calculadora = () => {
   // -------------------------------------------------------------
   // crea la lista de simbolos (API)
   // -------------------------------------------------------------
-  const listaSimbolos = async () => {
+  const createListaSimbolos = async () => {
     var newVariable = {
       simbols: simbolosGuardar,
     };
@@ -171,6 +178,35 @@ const Calculadora = () => {
       return;
     } else {
       const serviceUrl = `http://localhost:8000/listSimbolos `;
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      axios
+        .post(serviceUrl, newVariable, config)
+        .then((response) => {
+          objetivoFuncionMaxMin();
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud:", error);
+        });
+    }
+  };
+
+  // -------------------------------------------------------------
+  // Seleccionar Objetivo de la funcion Maximizar o Minimizar (API)
+  // -------------------------------------------------------------
+  const objetivoFuncionMaxMin = async () => {
+    var newVariable = {
+      objetivo: objetivoMaxMinGuardar,
+    };
+    if (objetivoMaxMinGuardar === null) {
+      alert("Debe ingresar el objetivo Maximizar o Minimizar");
+      return;
+    } else {
+      const serviceUrl = `http://localhost:8000/ObjetivoMaxMin `;
       let config = {
         headers: {
           "Content-Type": "application/json",
@@ -271,7 +307,7 @@ const Calculadora = () => {
   // Llama a los metodos necesarios para crear la matriz en el api (API)
   // -------------------------------------------------------------
   const crearMatrizAPI = async () => {
-    listaSimbolos();
+    createListaSimbolos();
   };
 
   // Renderizar la interfaz de usuario
@@ -284,6 +320,19 @@ const Calculadora = () => {
         <h3>Entradas para Variables de Decisión:</h3>
         {variablesDeDecisionInput}
       </div>
+
+      <div>
+        <label>Selecciona el objetivo:</label>
+        <select
+          id="objetivoSelect"
+          onChange={handleSelectObjetivoChange}
+        >
+          <option value="">Selecciona una opción</option>
+          <option value="Maximizar">Maximizar</option>
+          <option value="Minimizar">Minimizar</option>
+        </select>
+      </div>
+
       <div>
         <h3>Entradas para Restricciones:</h3>
         {restriccionesInput}
