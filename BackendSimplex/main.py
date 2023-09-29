@@ -57,7 +57,7 @@ async def GetMatrizSolucion(request: Request):
 @app.post("/VarDecision")
 async def UpdateVarDesicion(req: VarDecisionModel):
     set_variables_decision(req.variables)
-    return {"message": "El exitoooo"}
+    return {"message": "OK"}
 
 
 # Recibe la lista de restricciones del front
@@ -66,14 +66,14 @@ async def UpdateRestricciones(req: RestriccionesModel):
     set_restricciones(req.restricciones)
     iniciarSimplex()
 
-    return {"message": "El exitoooo"}
+    return {"message": "OK"}
 
 
 # Recibe la lista de simbolos seleccionados en el front
 @app.post("/listSimbolos")
 async def UpdateSimbolos(req: SimbolosModel):
     set_simbolos(req.simbols)
-    return {"message": "El exitoooo"}
+    return {"message": "OK"}
 
 # Recibe el Objetivo Max Min del front
 
@@ -81,4 +81,4 @@ async def UpdateSimbolos(req: SimbolosModel):
 @app.post("/ObjetivoMaxMin")
 async def UpdateObjetivoMaxMin(req: ObjetivoFuncionModel):
     set_objetivo_funcion(req.objetivo)
-    return {"message": "El exitoooo"}
+    return {"message": "OK"}
