@@ -40,4 +40,5 @@ Además puedes usa comandos para instalar nuevamente lo que necesario para que f
 proyectoio\Scripts\activate
 pip install fastapi
 pip install uvicorn
+pip install numpy
 ```

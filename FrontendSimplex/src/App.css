@@ -6,7 +6,7 @@
   padding: 20px;
 }
 
-select{
+select {
   border: 2px solid rgb(33, 205, 205);
   background-color: transparent;
   color: #fff;
@@ -16,8 +16,7 @@ select:focus {
   color: #000000;
 }
 
-
-.VarDesInput{
+.VarDesInput {
   max-width: 200px;
   margin: 10px;
   background-color: transparent;
@@ -26,7 +25,7 @@ select:focus {
   padding: 5px;
 }
 
-.VarResInput{
+.VarResInput {
   max-width: 100px;
   margin: 10px;
   background-color: transparent;
@@ -35,7 +34,7 @@ select:focus {
   padding: 5px;
 }
 
-.inputSelect{
+.inputSelect {
   margin: 10px;
   max-width: 200px;
   background-color: transparent;
@@ -44,14 +43,13 @@ select:focus {
   padding: 5px;
 }
 
-.space{
+.space {
   margin: 10px;
 }
 
-.titulo{
+.titulo {
   padding: 30px;
 }
-
 
 .button-link {
   display: inline-block;

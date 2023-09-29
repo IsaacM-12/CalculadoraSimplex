@@ -323,10 +323,7 @@ const Calculadora = () => {
 
       <div>
         <label>Selecciona el objetivo:</label>
-        <select
-          id="objetivoSelect"
-          onChange={handleSelectObjetivoChange}
-        >
+        <select id="objetivoSelect" onChange={handleSelectObjetivoChange}>
           <option value="">Selecciona una opción</option>
           <option value="Maximizar">Maximizar</option>
           <option value="Minimizar">Minimizar</option>
