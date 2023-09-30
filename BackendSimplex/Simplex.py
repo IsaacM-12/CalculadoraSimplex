@@ -11,24 +11,20 @@ matrizInicialGlobal = []
 
 matrizConIteracionesGlobal = []
 
-variablesDeDesicionGlobal = [
-    # 2,3,4
-]
+variablesDeDesicionGlobal = []
 
-restriccionesGlobal = [
-    # [ 1, 0, 0, 5],
-    # [ 0, 3, 0, 12 ],
-    # [ 3, 2, 0, 18]
-]
+restriccionesGlobal = []
 
-simbolosGlobal = [
-    # "<=", "<=", "<="
-]
+simbolosGlobal = []
 
 objetivoFuncion = ""
 
 # Valor de M (un número muy grande)
 M = 1000000
+
+# ------------------------------------------------------------------------
+# Geters y setters
+# ------------------------------------------------------------------------
 
 
 def set_matriz_solucion(matriz):
@@ -172,6 +168,7 @@ def simplex_algorithm_with_M(tableau):
     tableau = tableau.astype(np.float64)  # Convertir la matriz a float64
     iteration = 1
     titulo = tituloMatriz()
+    global matrizConIteracionesGlobal
 
     iteraciones = []
     while True:
@@ -195,6 +192,7 @@ def simplex_algorithm_with_M(tableau):
         # Verifica si todos los ratios son negativos o cero
         if all(ratio <= 0 for ratio in ratios):
             print("El problema no tiene solución óptima o es no acotado.")
+            matrizConIteracionesGlobal = iteraciones
             return tableau  # Terminar la ejecución
 
         # Encuentra la fila de salida evitando divisiones por cero
@@ -220,7 +218,6 @@ def simplex_algorithm_with_M(tableau):
 
         iteration += 1
 
-    global matrizConIteracionesGlobal
     matrizConIteracionesGlobal = iteraciones
 
     return tableau
@@ -300,7 +297,6 @@ def iniciarSimplex():
     primeraMatriz.insert(0, titulo)
     global matrizInicialGlobal
     matrizInicialGlobal = primeraMatriz
-    print(primeraMatriz)
 
     lisParaSimplex = pasar_A_Simplex(tableau)
 
@@ -312,3 +308,5 @@ def iniciarSimplex():
     resultadotoList.insert(0, titulo)
     global matrizSolucionGlobal
     matrizSolucionGlobal = resultadotoList
+
+    return resultadotoList
